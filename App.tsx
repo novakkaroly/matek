@@ -2,29 +2,25 @@ import React, { useState } from 'react';
 import SetupScreen from './components/SetupScreen';
 import Worksheet from './components/Worksheet';
 import ResultsScreen from './components/ResultsScreen';
-import { generateWorksheet } from './utils/mathGenerator';
-import { GameConfig, GradeLevel, OperationType, Problem } from './types';
+import { generateWorksheet } from './utils/mathGenerator'; // Actually uses german logic now
+import { GameConfig, Problem } from './types';
 
 type GameState = 'SETUP' | 'PLAYING' | 'RESULTS';
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>('SETUP');
   const [problems, setProblems] = useState<Problem[]>([]);
-  const [timeLimit, setTimeLimit] = useState<number>(300); // Default 5 mins
+  const [timeLimit, setTimeLimit] = useState<number>(300); 
   const [timeUsed, setTimeUsed] = useState<number>(0);
 
-  // Keep track of last config to easily restart
-  const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
-
   const handleStart = (config: GameConfig) => {
-    const newProblems = generateWorksheet(30, { // 30 problems as per screenshot density
-      operation: config.operation,
+    const newProblems = generateWorksheet(20, { 
+      exerciseType: config.exerciseType,
       level: config.level
     });
     
     setProblems(newProblems);
     setTimeLimit(config.durationSeconds);
-    setLastConfig(config);
     setGameState('PLAYING');
     window.scrollTo(0, 0);
   };
@@ -42,7 +38,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 font-sans text-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-100 py-8 px-4 font-sans text-slate-900">
       <div className="container mx-auto">
         {gameState === 'SETUP' && (
           <SetupScreen onStart={handleStart} />
@@ -66,8 +62,8 @@ const App: React.FC = () => {
         )}
       </div>
       
-      <footer className="text-center mt-12 text-indigo-300 text-sm">
-        <p>&copy; {new Date().getFullYear()} Matek Kicsiknek | Jó tanulást!</p>
+      <footer className="text-center mt-12 text-orange-300 text-sm">
+        <p>&copy; {new Date().getFullYear()} Német Gyakorló | Viel Erfolg!</p>
       </footer>
     </div>
   );

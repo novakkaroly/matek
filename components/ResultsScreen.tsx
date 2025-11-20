@@ -16,11 +16,13 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ problems, timeUsed, onRes
     let unanswered = 0;
 
     problems.forEach(p => {
-      if (p.userAnswer.trim() === '') {
+      const cleanUser = p.userAnswer.trim().toLowerCase();
+      const cleanCorrect = p.correctValue.trim().toLowerCase();
+
+      if (cleanUser === '') {
         unanswered++;
       } else {
-        const val = parseInt(p.userAnswer, 10);
-        if (!isNaN(val) && val === p.correctValue) {
+        if (cleanUser === cleanCorrect) {
           correct++;
         } else {
           incorrect++;
@@ -41,10 +43,10 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ problems, timeUsed, onRes
   
   let message = "Jó gyakorlást!";
   let colorClass = "text-blue-600";
-  if (percentage === 100) { message = "Zseniális! Hibátlan!"; colorClass = "text-green-600"; }
-  else if (percentage >= 80) { message = "Nagyon ügyes vagy!"; colorClass = "text-green-500"; }
-  else if (percentage >= 50) { message = "Jó munka, de gyakorolj még!"; colorClass = "text-orange-500"; }
-  else { message = "Ne add fel, menni fog ez jobban is!"; colorClass = "text-red-500"; }
+  if (percentage === 100) { message = "Wunderbar! Hibátlan!"; colorClass = "text-green-600"; }
+  else if (percentage >= 80) { message = "Sehr gut! Nagyon ügyes vagy!"; colorClass = "text-green-500"; }
+  else if (percentage >= 50) { message = "Gut! De gyakorolj még!"; colorClass = "text-orange-500"; }
+  else { message = "Gyakorolj még, menni fog!"; colorClass = "text-red-500"; }
 
   // Format time
   const m = Math.floor(timeUsed / 60);
@@ -85,37 +87,32 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ problems, timeUsed, onRes
 
             <div className="mb-8">
                  <h3 className="text-left font-bold text-gray-700 mb-4 border-b pb-2">Részletek</h3>
-                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                     {problems.map((p, i) => {
-                        const val = parseInt(p.userAnswer, 10);
-                        const isCorrect = !isNaN(val) && val === p.correctValue;
-                        const isUnanswered = p.userAnswer === '';
+                        const cleanUser = p.userAnswer.trim().toLowerCase();
+                        const cleanCorrect = p.correctValue.trim().toLowerCase();
+                        const isCorrect = cleanUser === cleanCorrect;
+                        const isUnanswered = p.userAnswer.trim() === '';
                         
                         let borderClass = isUnanswered ? 'border-gray-200 bg-gray-50' : (isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50');
                         let textClass = isUnanswered ? 'text-gray-500' : (isCorrect ? 'text-green-800' : 'text-red-800');
 
                         return (
-                            <div key={p.id} className={`p-3 rounded border ${borderClass} flex justify-between items-center text-sm`}>
-                                <div className="font-mono font-bold">
-                                    {p.missingPosition === 'num1' ? <span className="underline decoration-dotted decoration-2 underline-offset-4">?</span> : p.num1}
-                                    {' '}{p.operator}{' '}
-                                    {p.missingPosition === 'num2' ? <span className="underline decoration-dotted decoration-2 underline-offset-4">?</span> : p.num2}
-                                    {' = '}
-                                    {p.missingPosition === 'result' ? <span className="underline decoration-dotted decoration-2 underline-offset-4">?</span> : (
-                                        // Calc result for display
-                                        p.operator === '+' ? p.num1 + p.num2 :
-                                        p.operator === '-' ? p.num1 - p.num2 :
-                                        p.operator === '·' ? p.num1 * p.num2 :
-                                        p.num1 / p.num2
-                                    )}
+                            <div key={p.id} className={`p-3 rounded border ${borderClass} flex flex-col text-sm`}>
+                                <div className="mb-1 text-gray-700">
+                                   {p.prefix} <strong>{p.correctValue}</strong> {p.suffix}
                                 </div>
-                                <div className={`${textClass} font-bold`}>
-                                    {isUnanswered ? '—' : (
-                                        <span className="flex items-center gap-1">
-                                            {p.userAnswer}
-                                            {!isCorrect && <span className="text-xs text-gray-500 opacity-75 line-through">({p.correctValue})</span>}
-                                        </span>
-                                    )}
+                                <div className="flex justify-between items-center mt-1 border-t pt-2 border-black/5">
+                                    <span className="text-xs text-gray-500 italic">{p.hint}</span>
+                                    <div className={`${textClass} font-bold`}>
+                                        {isUnanswered ? '—' : (
+                                            <span className="flex items-center gap-2">
+                                                Te: {p.userAnswer}
+                                                {!isCorrect && <span className="text-xs text-red-500 opacity-75 ml-1">✗</span>}
+                                                {isCorrect && <span className="text-xs text-green-600 opacity-75 ml-1">✓</span>}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         )
@@ -125,7 +122,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ problems, timeUsed, onRes
 
             <button
                 onClick={onRestart}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg flex items-center justify-center gap-2 mx-auto transition-transform hover:scale-105"
+                className="bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg flex items-center justify-center gap-2 mx-auto transition-transform hover:scale-105"
             >
                 <RefreshCw className="w-5 h-5" />
                 Új feladatlap
